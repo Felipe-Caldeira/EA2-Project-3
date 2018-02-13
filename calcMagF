@@ -1,0 +1,26 @@
+function [magF, length] = calcMagF(a, Ax, Ay, Bvar)
+
+% Points
+A = [Ax*cosd(a)-Ay*sind(a), Ax*sind(a)+Ay*cosd(a), 0];
+if nargin == 3
+    B = [.1, 0, 0];
+else
+    B = [Bvar, 0, 0];
+end
+C = [0, 0, 0];
+G = [1.8*cosd(a)-.5*sind(a), 1.8*sind(a)+.5*cosd(a), 0];
+
+% Vectors & unit vectors
+CA = A - C;
+BA = A - B;
+CG = G - C;
+
+eCA = CA/norm(CA);
+eBA = BA/norm(BA);
+eCG = CG/norm(CG);
+
+W = [0, -150, 0];
+% Calculate F using moments about C
+% sumMc = (CG x W) + (CA x F) = 0
+magF = (-cross(CG, W))/(cross(CA,eBA));
+length = norm([Ax*cosd(50)-Ay*sind(50), Ax*sind(50)+Ay*cosd(50), 0] - B);

@@ -1,0 +1,126 @@
+% Problem 1
+% Use moment equilibrium equation to find mag of force F.
+
+% Problem 2
+alpha = 0:50;
+MagForceVec = zeros(1, 51);
+
+col = 1;
+for a = alpha
+    MagForceVec(1, col) = calcMagF(a, 2.4, .3);
+    col = col + 1;
+end
+
+% Plot results
+figure(1);
+plot(alpha, MagForceVec);
+title('Magnitude of force F vs Angle Alpha');
+xlabel('Angle Alpha (Deg)');
+ylabel('Magnitude of force F (kN)');
+
+% Problem 3
+Ax = 0:.05:3.6;
+Ay = 0:.05:1.3;
+
+MagForceVec2 = zeros(73, 27);
+
+row = 1;
+col = 1;
+a = 0;
+warning('off');
+for x = Ax
+    for y = Ay
+        if norm([x*cosd(a)-y*sind(a), x*sind(a)+y*cosd(a), 0] - [3.6, 0, 0]) < 0.8
+            MagForceVec2(row, col) = NaN;
+            col = col+1;
+        else
+            MagForceVec2(row, col) = calcMagF(a, x, y);
+            col = col + 1;
+        end
+    end
+    row = row + 1;
+    col = 1;
+end
+
+
+% Plot results
+figure(2);
+res = surf(Ax, Ay, MagForceVec2');
+title('Max magnitude of force F vs coordinates of point A');
+xlabel('X coordinate of A (m)');
+ylabel('Y coordinate of A (m)');
+zlabel('Magnitude of force F (kN)');
+set(res,'LineStyle','none');
+ylim([0 4]);
+
+
+% Problem 4
+Ax = 0:.1:3.6;
+Ay = .1:.1:1.3;
+B = .1:.1:3.6;
+
+% Cost 1
+row = 1;
+col = 1;
+layer = 1;
+a = 0;
+for b = B
+    for x = Ax
+        for y = Ay
+            if norm([x*cosd(a)-y*sind(a), x*sind(a)+y*cosd(a), 0] - [b, 0, 0]) < 0.8
+                BigMat(row, col, layer) = NaN;
+                col = col+1;
+            else
+                [mag, length] = calcMagF(a, x, y, b);
+                BigMat(row, col, layer) = mag*(length^1.3);
+                col = col + 1;
+            end
+        end
+        col = 1;
+        row = row + 1;
+    end
+    col = 1;
+    row = 1;
+    layer = layer + 1;
+end
+[minVal1, minLayer1] = min(min(min(BigMat(:, :, :))));
+[~, minCol1] = min(min(BigMat(:, :, minLayer1)));
+[~, minRow1] = min(BigMat(:, minCol1, minLayer1));
+minAx1 = (minRow1 - 1)/10;
+minAy1 = minCol1/10;
+minB1 = minLayer1/10;
+
+fprintf("\nMinimum A and B Coordinates for Cost 1: A(%.1f,%.1f), B(%.1f, 0)\n", [minAx1, minAy1, minB1]);
+
+% Cost 2
+row = 1;
+col = 1;
+layer = 1;
+a = 0;
+for b = B
+    for x = Ax
+        for y = Ay
+            if norm([x*cosd(a)-y*sind(a), x*sind(a)+y*cosd(a), 0] - [b, 0, 0]) < 0.8
+                BigMat2(row, col, layer) = NaN;
+                col = col+1;
+            else
+                [mag, length] = calcMagF(a, x, y, b);
+                BigMat2(row, col, layer) = mag*(length^1.6);
+                col = col + 1;
+            end
+        end
+        col = 1;
+        row = row + 1;
+    end
+    col = 1;
+    row = 1;
+    layer = layer + 1;
+end
+[minVal2, minLayer2] = min(min(min(BigMat2(:, :, :))));
+[~, minCol2] = min(min(BigMat2(:, :, minLayer2)));
+[~, minRow2] = min(BigMat2(:, minCol1, minLayer2));
+minAx2 = (minRow2 - 1)/10;
+minAy2 = minCol2/10;
+minB2 = minLayer2/10;
+
+fprintf("\nMinimum A and B Coordinates for Cost 2: A(%.1f,%.1f), B(%.1f, 0)\n", [minAx2, minAy2, minB2]);
